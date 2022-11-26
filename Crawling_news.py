@@ -1,24 +1,27 @@
-# BeautifulSoup, Selenium 이용하여 Bigkinds 사이트에서 기사 긇어오기
+# Selenium 이용하여 Bigkinds.or.kr에서 기사 긇어오기
 # chrome version: 107.0.5304.107
-import pandas as pd
+
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
-from bs4 import BeautifulSoup
 from selenium.webdriver.common.by import By
-#import requests
 import time
-from time import localtime
 import pandas as pd
-import datetime as dt
+import datetime
 
 # 시간 변수 선언
-now = dt.datetime.now().date()  # 오늘
-yesterday = now - dt.timedelta(1)  # 전날
-
+today = datetime.datetime.now().date()
+yesterday = today - datetime.timedelta(1)
+'''
+만약 주말에는 서비스를 제공하지 않는다면 
+if today.weekday() == 0:  # Monday
+    yesterday = today - datetime.timedelta(3)  # Fri ~ Mon
+elif today.weekday() < 5:  # Tuesday ~ Friday
+    yesterday = today - datetime.timedelta(1)
+else:
+    quit  # Saturday ~ Sunday
+'''
 # Current_own.py에서 저장한 user_infos.xlsx에서 종목명만 불러와 리스트에 저장
-stock_df = list(pd.read_excel('user_infos.xlsx', engine='openpyxl', header=0, index_col=0)['종목명'][:])
-
-
+stock_data = list(pd.read_excel('user_infos.xlsx', engine='openpyxl', header=0, index_col=0)['종목명'][:])
 
 # 빅카인즈 홈페이지 띄우기
 wd = webdriver.Chrome()
@@ -27,10 +30,11 @@ url = r'https://www.bigkinds.or.kr/'
 wd.get(url)
 time.sleep(3)
 
+news_title, origin_link, stock_name = {}, {}, []
 titles = []   # 기사 제목 저장
 urls = []  # 기사원본 링크 저장
 # 주식 종목명 입력, 검색버튼 클릭, 관련기사 링크 종합하여 저장
-for i in stock_df:  # stock 빈 리스트 형태로 불러옴, register_stock함수가 실행 되고난 뒤 불러올 수 있도록 해야함 or xlsx파일에서 불러오는걸로
+for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock함수가 실행 되고난 뒤 불러올 수 있도록 해야함 or xlsx파일에서 불러오는걸로
     news_search = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[1]/input[1]')
     news_search.send_keys(f"{i}")  # 보유 중인 주식명 기입
     time.sleep(3)
@@ -88,27 +92,37 @@ for i in stock_df:  # stock 빈 리스트 형태로 불러옴, register_stock함
                     try:
                         urls.append(wd.find_element(By.XPATH, f'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[5]/div[{k}]/div/div[2]/div/div/a').get_attribute('href'))  # 기사 링크 추출
                         time.sleep(1)
-                    except:
+                    except :
                         urls.append('원본 link 확인 불가')
-            wd.find_element(By.XPATH,'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[7]/div[1]/div/div/div/div[4]/a').click()  # 다음페이지로 이동
+            wd.find_element(By.XPATH,'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[7]/div[1]/div/div/div/div[4]/a').click()  # 다음 페이지로 이동
             time.sleep(3)  # 페이지가 로드 되기 전 클릭하는걸 막아주는 역할
-    print(titles)
-    print(urls)
-    # url과 title을 csv파일 형태로 저장
     if len(titles) != 0:
-        df = pd.DataFrame(titles, columns=['기사 제목'])
-        df['url'] = urls
-        df.to_csv("news.csv", index=False)
+        news_title[i] = titles  # {'kakao':[t1, t2,..., tn],'naver':[t1,t2,..,tn]}
+        origin_link[i] = urls    # # {'kakao':[u1, u2,..., un],'naver':[u1,u2,..,un]}
     else:
-        print("검색된 기사가 없습니다.")
+        news_title[i] = ['not searched']
+        origin_link[i] = ['not searched']
     titles, urls = [], []   # 리스트 초기화
-
+    stock_name.append([i]*news_title(news_title[i]))  # 주식 종목명 리스트
     # 빅카인즈 홈페이지로 돌아감
     try:  # 작은 창모드 일때
-        wd.find_element(By.XPATH,'/html/body/div[1]/header/div[1]/div/a/button').click()
+        wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/a/button').click()
     except:  # 큰 창모들 일때
-        wd.find_element(By.XPATH,'/html/body/div[1]/header/div[1]/div/h1/a/img').click()
-# 필요 작업: csv파일로 저장하되 매번 새로운 파일을 만드는게 아니라 dataframe에 이어 붙혀서 인덱스를 검색어로 하는 df를 최종적으로 만든 뒤 파일로 저장하는 작업 필요
+        wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/h1/a/img').click()
+
+# url과 title을 csv파일 형태로 저장
+cnt = 0
+for i in stock_data:
+    if cnt == 0:
+        df = pd.DataFrame({'stock name': stock_name[cnt], 'news title': news_title[i], 'original link': origin_link[i]})
+        cnt += 1
+    else:
+        add_df = pd.DataFrame({'stock name': stock_name[cnt], 'news title': news_title[i], 'original link': origin_link[i]})
+        cnt += 1
+        df = pd.concat([df, add_df], ignore_index=True)
+        add_df.drop(['stock name', 'news title', 'original link'], axis=1, inplace=True)
+# 최종 파일 저장
+df.to_csv('news.csv', index=False,  encoding='cp949')
 
 
 # 기본값이 현재시각이라서 굳이 안바꿔도됨
@@ -116,7 +130,7 @@ for i in stock_df:  # stock 빈 리스트 형태로 불러옴, register_stock함
 #     for _ in range(10):
 #         period_end.send_keys(Keys.BACK_SPACE)  # 기존 입력값 삭제
 #     time.sleep(3)
-#     period_end.send_keys(f'{now}')  # 하루전 날짜 입력
+#     period_end.send_keys(f'{today}')  # 하루전 날짜 입력
 #
 #     마지막 검색버튼 클릭, 상세검색 적용으로 불필요
 #     time.sleep(3)
