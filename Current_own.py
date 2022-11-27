@@ -75,7 +75,7 @@ ws.write('A1', "구분")
 ws.write('B1', "종목명")
 ws.write('C1', "평균매입가")
 ws.write('D1', "잔고수량")
-ws.write('E1', "평가금액")
+ws.write('E1', "매수금액")
 # ws.write('F1', "평가손익")   # 추후 계산 > 현재가 확인 파일 생성 후
 # ws.write('G1', "수익률")    # 추후 계산 > 현재가 확인 파일 생성 후
 
@@ -91,7 +91,11 @@ for i in range(n+m):
     if i < n:  # 관심종목 전까지만 추가 정보저장
         ws.write(f'C{i+2}', buy_lst[i][1])  # 평균매입가
         ws.write(f'D{i+2}', buy_lst[i][2])  # 잔고수량
-        ws.write(f'E{i+2}', buy_lst[i][1]*buy_lst[i-2][2])  # 평가금액 = 평균매입가*잔고수량
+        ws.write(f'E{i+2}', buy_lst[i][1]*buy_lst[i-2][2])  # 매수금액 = 평균매입가*잔고수량
         #    ws.write(f'F{i}',f'=E{i} - {buy_price}')
         #    ws.write(f'G{i}',f'=F{i}/{buy_price}*100')
+    else:
+        ws.write(f'C{i + 2}', 0)  # 평균매입가
+        ws.write(f'D{i + 2}', 0)  # 잔고수량
+        ws.write(f'E{i + 2}', 0)
 wb.close()
