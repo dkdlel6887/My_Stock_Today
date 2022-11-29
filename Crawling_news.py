@@ -28,7 +28,6 @@ wd = webdriver.Chrome()
 wd.implicitly_wait(3)  # 3초간 반복적으로 작업이 수행될 때까지 반복하는 것
 url = r'https://www.bigkinds.or.kr/'
 wd.get(url)
-time.sleep(3)
 
 news_title, origin_link, stock_name = {}, {}, []
 titles = []   # 기사 제목 저장
@@ -37,32 +36,37 @@ urls = []  # 기사원본 링크 저장
 for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock함수가 실행 되고난 뒤 불러올 수 있도록 해야함 or xlsx파일에서 불러오는걸로
     news_search = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[1]/input[1]')
     news_search.send_keys(f"{i}")  # 보유 중인 주식명 기입
-    time.sleep(3)
+    # time.sleep()
     detail_search = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/button')
     detail_search.click()    # 상세검색 버튼 클릭
-    time.sleep(3)
+    time.sleep(1)
     seoul_check = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[2]/div/div[1]/div[4]/div[1]/span[1]/label')
     seoul_check.click()   # 언론사 서울 지정
-    time.sleep(3)
+    #time.sleep(1)
     period = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[2]/div/div[1]/div[1]/a')
     period.click()   # 기간 선택
+    time.sleep(1)
     period_start = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[2]/div/div[1]/div[2]/div/div[2]/div/div[1]/input')
     for _ in range(10):
         period_start.send_keys(Keys.BACK_SPACE)  # 기존 입력값 삭제
-    time.sleep(1)
+    #time.sleep(1)
     period_start.send_keys(f'{yesterday}')   # 하루전 날짜 입력
-    time.sleep(1)
+    #time.sleep(1)
     apply_option = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[2]/div/div[4]/div[2]/button[2]')
     apply_option.click()  # 기간, 언론사 세부검색 적용
-    time.sleep(3)
+    time.sleep(1)
+
+# "Message: stale element reference: element is not attached to the page document"
+# time.sleep()을 적절히 사용해야 크롤링 속도를 유지하면서 위 오류가 발생하지 않는다. 쉽지않다.
 
     # 총 기사 개수를 파악 후 페이지를 넘기며 해당 페이지의 기사제목과 링크를 가져와 각 리스트에 저장
     n = int(wd.find_element(By.XPATH,'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[3]/h3/span[6]').text) // 10 + 1  # 페이지 수
     m = int(wd.find_element(By.XPATH,'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[3]/h3/span[6]').text) % 10  # 마지막 페이지 기사 개수
+    # 크롤링 도중 기사가 추가되는 경우 포함 불가..
     for pg in range(1, n+1):  # 전체 페이지 수 만큼 반복
         if n == 1 and m == 0:  # 기사가 0개
             break
-        if (n == 1 or pg == n) and m != 0:  # 기사 10개 미만이거나 마지막 페이지 일 때
+        if (n == 1 and m != 0) or pg == n:  # 기사 10개 미만이거나 마지막 페이지 일 때
             articles = wd.find_elements(By.CLASS_NAME, 'news-item')  # 리스트 형태로 news-item이란 클래스명을 태그를 가져옴
             time.sleep(1)
             for j in range(1, m+1):
@@ -78,7 +82,7 @@ for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock�
                         time.sleep(1)
                     except:
                         urls.append('원본 link 확인 불가')
-        else:   # 기사 개수가 10의 배수이거나 마지막 페이지가 아닐 때
+        else:   # 마지막 페이지가 아닐 때
             articles = wd.find_elements(By.CLASS_NAME, 'news-item')  # 리스트 형태로 news-item이란 클래스명을 태그를 가져옴
             time.sleep(1)
             for k in range(1, 11):  # 페이지 당 최대 표시 기사 갯수 10개
@@ -94,8 +98,9 @@ for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock�
                         time.sleep(1)
                     except :
                         urls.append('원본 link 확인 불가')
+                        time.sleep(1)
             wd.find_element(By.XPATH,'/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[7]/div[1]/div/div/div/div[4]/a').click()  # 다음 페이지로 이동
-            time.sleep(3)  # 페이지가 로드 되기 전 클릭하는걸 막아주는 역할
+            time.sleep(1)
     if len(titles) != 0:
         news_title[i] = titles  # {'kakao':[t1, t2,..., tn],'naver':[t1,t2,..,tn]}
         origin_link[i] = urls    # # {'kakao':[u1, u2,..., un],'naver':[u1,u2,..,un]}
@@ -103,7 +108,7 @@ for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock�
         news_title[i] = ['not searched']
         origin_link[i] = ['not searched']
     titles, urls = [], []   # 리스트 초기화
-    stock_name.append([i]*news_title(news_title[i]))  # 주식 종목명 리스트
+    stock_name.append([i]*len(news_title[i]))  # 주식 종목명('카카오') * len(news_title[i] = [t1, t2,..., tn])
     # 빅카인즈 홈페이지로 돌아감
     try:  # 작은 창모드 일때
         wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/a/button').click()
