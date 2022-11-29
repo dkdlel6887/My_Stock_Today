@@ -6,7 +6,7 @@ Free Program. You can check daily price and read reports about stocks you curren
 1) 장 시작 전 보유종목들에 관한 기사 link 종합하여 메일로 전파해 줌<br>
    - 기사 검색기간은 전일 장 마감이후 ~ 장 시작 전 30분
    - 기사는 [빅카인즈](https://bigkinds.or.kr)에서 검색하며, selenium 이용
-2) Rainforest 이용하여 기사의 긍정, 부정적 여부 진단, 비율을 통해 가벼운 예측 진행
+2) Random forest 이용하여 기사의 긍정, 부정적 여부 진단, 비율을 통해 가벼운 예측 진행
 3) 로그인하여 보유종목을 입력하고 개인 정보 저장 가능
 4) 현재가 및 보유 종목 별 수익률, 손익금 확인 가능
 
