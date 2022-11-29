@@ -23,7 +23,11 @@ def register_stock(stock):
 # stock = ['삼성전자', '두산에너빌리티', '카카오', '코리안리']
 def register_buy_price(buy_info):
     for i in range(n):
-        buy_info.append(list(map(int,input(f"{stock[i]}의 매수 평균가, 수량을 입력해 주세요{{{i+1}}}: ").split(','))))
+        inputs = input(f"{stock[i]}의 매수 평균가, 수량을 입력해 주세요{{{i + 1}}}: ")
+        if inputs.find(',') != -1:
+            buy_info.append(list(map(int, inputs.split(','))))
+        else:
+            buy_info.append(list(map(int, inputs.split())))
     fin2 = input("수정이 필요하십니까? (Y/N): ")
     if fin2 == 'Y' or fin2 == 'y':
         buy_info = []   # 모두 초기화 하고 재입력
@@ -31,7 +35,11 @@ def register_buy_price(buy_info):
 # buy_info = [[71000, 16], [20050, 99], [122000, 8], [9980, 100]]
 def register_stockplus(stockplus):
     while True:
-        pluslist = list((input("관심 종목을 추가해 주세요: ").split(" ")))
+        plus = input("관심 종목을 추가해 주세요. [종목명1, 종목명2,..]: ")
+        if plus.find(',') != -1:
+            pluslist = list((plus.split(",")))
+        else:
+            pluslist = list((plus.split(" ")))
         fin3 = input("수정이 필요하십니까? (Y/N): ")
         if fin3 == 'Y' or fin3 == 'y':
             continue
@@ -88,7 +96,7 @@ for i in range(n+m):
     if i < n:  # 관심종목 전까지만 추가 정보저장
         ws.write(f'C{i+2}', buy_lst[i][1])  # 평균매입가
         ws.write(f'D{i+2}', buy_lst[i][2])  # 잔고수량
-        ws.write(f'E{i+2}', buy_lst[i][1]*buy_lst[i-2][2])  # 매수금액 = 평균매입가*잔고수량
+        ws.write(f'E{i+2}', buy_lst[i][1]*buy_lst[i][2])  # 매수금액 = 평균매입가*잔고수량
     else:
         ws.write(f'C{i + 2}', 0)  # 평균매입가
         ws.write(f'D{i + 2}', 0)  # 잔고수량
