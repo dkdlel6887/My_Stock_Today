@@ -13,20 +13,19 @@ wd = webdriver.Chrome()
 wd.implicitly_wait(3)  # 3초간 반복적으로 작업이 수행될 때까지 반복하는 것
 url = r'https://finance.naver.com/'
 wd.get(url)
-time.sleep(3)
+time.sleep(1)
 
 exprice_lst = []  # 전일 종가 정보 저장(오전 장시작 전 기준: 현재가->전일 종가)
 
 stock_data = list(pd.read_excel('user_infos.xlsx', engine='openpyxl', header=0, index_col=0)['종목명'][:])
-#stock_data = ['두산에너빌리티', '카카오', '삼성전자', 'lg에너지솔루션']
+# stock_data = ['두산에너빌리티', '카카오', '삼성전자', 'lg에너지솔루션']
 for i in stock_data:
     search = wd.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[2]/form/fieldset/div/div[1]/input')
     search.send_keys(f"{i}")  # 보유 중인 주식명 기입
     time.sleep(1)
     wd.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[2]/form/fieldset/div/div[2]/div/div[1]/div/div/ul/li/a').click()
     time.sleep(1)
-#'/html/body/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]/div/p[1]/em/span'
-    exprice = wd.find_elements(By.XPATH,'/html/body/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]/div/p[1]/em/span')
+    exprice = wd.find_elements(By.XPATH, '/html/body/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]/div/p[1]/em/span')
     for j in range(len(exprice)):
         exprice[j] = exprice[j].text
     exprice_lst.append(int(''.join(exprice).replace(',', "")))
