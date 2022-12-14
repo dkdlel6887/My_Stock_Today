@@ -2,11 +2,9 @@
 
 # 종가 정보 크롤링 -> 네이버 검색이용
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
 import time
 import pandas as pd
-import xlsxwriter
 import openpyxl
 
 wd = webdriver.Chrome()
