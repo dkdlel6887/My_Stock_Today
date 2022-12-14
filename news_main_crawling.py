@@ -1,9 +1,11 @@
 from selenium import webdriver
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import pandas as pd
 import time
 import datetime
+import pandas as pd
+
+
 #  뉴스 기사와 기자는 저작물로 등록되어있기 때문에 별도의 상업적인 용도로 사용은 불가
 
 # 시간 변수 선언
@@ -20,7 +22,7 @@ wd.get(url)
 time.sleep(1)
 
 news_search = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/div[1]/input[1]')
-news_search.send_keys("패딩")  # 보유 중인 주식명 기입
+news_search.send_keys("좀비")  # 보유 중인 주식명 기입
 # time.sleep()
 detail_search = wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/form/div/div[1]/button')
 detail_search.click()    # 상세검색 버튼 클릭
@@ -72,5 +74,8 @@ for pg in range(1, n + 1):  # 전체 페이지 수 만큼 반복
         wd.find_element(By.XPATH, '/html/body/div[1]/main/div[1]/div[2]/div/div[2]/div[2]/div/div[2]/div[3]/div[7]/div[1]/div/div/div/div[4]/a').click()  # 다음 페이지로 이동
     time.sleep(1)
 
-print(full_report)
-# 키워드 > 따로 번호, 전체 문단 수 구하기 >
+print(full_report)  # 리포트 제목: 본문 형태로 여러개가 저장된 딕셔너리..
+
+# 최종 파일 저장
+df = pd.DataFrame({'news title': full_report.keys(), 'content': full_report.values()})
+df.to_csv('news_main.csv', index=False,  encoding='cp949')
