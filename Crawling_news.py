@@ -112,16 +112,16 @@ for i in stock_data:  # stock 빈 리스트 형태로 불러옴, register_stock�
     # 빅카인즈 홈페이지로 돌아감
     try:  # 작은 창모드 일때
         wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/a/button').click()
-    except:  # 큰 창모들 일때
+    except:  # 큰 창모드 일때
         wd.find_element(By.XPATH, '/html/body/div[1]/header/div[1]/div/h1/a/img').click()
 
 # url과 title을 csv파일 형태로 저장
 cnt = 0
 for i in stock_data:
-    if cnt == 0:
+    if cnt == 0:  # 처음 추가할때는 컬럼명 유지
         df = pd.DataFrame({'stock name': stock_name[cnt], 'news title': news_title[i], 'original link': origin_link[i]})
         cnt += 1
-    else:
+    else:  # 2번째 추가항목 부터는 컬럼명 지운채로 추가
         add_df = pd.DataFrame({'stock name': stock_name[cnt], 'news title': news_title[i], 'original link': origin_link[i]})
         cnt += 1
         df = pd.concat([df, add_df], ignore_index=True)

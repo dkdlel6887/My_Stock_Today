@@ -23,13 +23,13 @@ for i in stock_data:
     time.sleep(1)
     wd.find_element(By.XPATH, '/html/body/div[2]/div[1]/div/div[2]/form/fieldset/div/div[2]/div/div[1]/div/div/ul/li/a').click()
     time.sleep(1)
-    exprice = wd.find_elements(By.XPATH, '/html/body/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]/div/p[1]/em/span')
+    exprice = wd.find_elements(By.XPATH, '/html/body/div[3]/div[2]/div[2]/div[1]/div[1]/div[1]/div/p[1]/em/span')  # 전일 종가 정보
     for j in range(len(exprice)):
         exprice[j] = exprice[j].text
     exprice_lst.append(int(''.join(exprice).replace(',', "")))
 print(exprice_lst)
 
-fpath = 'user_infos.xlsx'
+fpath = 'user_infos.xlsx'  # user_info 파일에 새로운 정보 추가(전일종가, 평가금액, 평가손익, 손익률)
 wb = openpyxl.load_workbook(fpath)
 ws = wb['user1']
 ws['F1'] = '전일 종가'

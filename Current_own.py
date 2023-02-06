@@ -12,7 +12,7 @@ stock_info = {}
 register_stock_info()
 print(stock_info)
 '''
-# sing up 할 때 사용, 수정할 경우 모두 초기화 되기 때문에
+# sign up 할 때 사용, 수정할 경우 모두 초기화 되기 때문에
 def register_stock(stock):
     for i in range(n):
         stock.append(input(f"보유 중인 종목의 주식명을 입력해 주세요{{{i+1}}}: "))
@@ -85,12 +85,12 @@ ws.write('C1', "평균매입가")
 ws.write('D1', "잔고수량")
 ws.write('E1', "매수금액")
 
-for i in range(n+m):
-    if i < n:
+for i in range(n+m):  # 보유종목 + 관심종목 -> 종목명, 평균매입가, 잔고수량 리스트화
+    if i < n:  # 보유종목 정보 삽입
         buy_lst.append([stock[i],buy_info[i][0], buy_info[i][1]])  # [['삼성전자',71000, 16], ...]
-    else:
+    else:  # 관심종목은 보유량이 없으므로 0, 0 기입
         buy_lst.append([stockplus[i-n], 0, 0])  # [['삼성전자',71000, 16], ...]
-for i in range(n+m):
+for i in range(n+m):  # 엑셀파일 내 위의 데이터 기입
     ws.write(f'A{i+2}', i+1)  # 번호
     ws.write(f'B{i+2}', buy_lst[i][0])  # 종목명
     if i < n:  # 관심종목 전까지만 추가 정보저장
